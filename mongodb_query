@@ -1,0 +1,119 @@
+
+//Current Unique users across all streams per state
+db.users.aggregate([
+    {
+        "$match": {
+            "timestamp": {"$gte": new Date().getTime()/1000 - 60 * 5}
+        }
+    },
+
+    { "$group": {
+        "_id": {
+            "geo": "$geo",
+            "clientID": "$clientid"
+        },
+        "count": { "$sum": 1 }
+    }}, 
+
+    { "$group": {
+        "_id": {
+            "geo": "$_id.geo"
+        },
+        "viewerCount": { "$sum": 1 }
+    }}
+])
+
+//Current Unique users across all streams per device type.
+db.users.aggregate([
+    {
+        "$match": {
+            "timestamp": {"$gte": new Date().getTime()/1000 - 60 * 5}
+        }
+    },
+    { "$group": {
+        "_id": {
+            "device": "$device",
+            "clientid": "$clientid"
+        },
+        "count": { "$sum": 1 }
+    }}, 
+
+    { "$group": {
+        "_id": {
+            "device": "$_id.device"
+        },
+        "viewerCount": { "$sum": 1 }
+    }}
+])
+
+//Current Unique Users streaming content on
+db.users.aggregate([
+    {
+        "$match": {"content": "ESPN", "timestamp": {"$gte": new Date().getTime()/1000 - 60 * 5}}
+    },
+
+    {
+        "$group": {
+            "_id": {
+                "content": "$content",
+                "clientid": "$clientid"
+            },
+            "count": { "$sum": 1 }
+        }
+    },
+
+    { "$group": {
+        "_id": {
+            "content": "$_id.content"
+        },
+        "viewerCount": { "$sum": 1 }
+    }},
+    { "$project": { "_id": 0 } }
+])
+
+//Current stream count per user
+db.users.aggregate([
+    {
+        "$match" : {"clientid": "user3", "timestamp": {"$gte": new Date().getTime()/1000 - 60 * 5}}
+    },
+
+    {
+        "$group": {
+            "_id": {
+                "content": "$content",
+                "clientid": "$clientid"
+            },
+            "count": { "$sum": 1 }
+        }
+    },
+
+    { "$group": {
+        "_id": {
+            "clientid": "$_id.clientid"
+        },
+        "streamCount": { "$sum": 1 }
+    }},
+    { "$project": { "_id": 0 } }
+])
+
+
+
+//Current Unique users across all streams.
+db.users.aggregate([
+    {
+        "$match": {
+            "timestamp": {"$gte": new Date().getTime()/1000 - 60 * 5}
+        }
+    },
+    {
+        "$group":{
+            "_id": {
+                "clientid": "$clientid"
+            }
+        }
+    },
+    { "$group": { 
+        "_id": null, 
+        "viewerCount": { "$sum": 1 } } },
+    { "$project": { "_id": 0 } }
+])
